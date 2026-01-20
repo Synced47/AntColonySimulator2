@@ -37,10 +37,13 @@ public class AntColony : MonoBehaviour
             
             HandleMovement(currentAnt, foodSources, dt);
             DepositPheromone(currentAnt);
-            
+
             if (!currentAnt.carryingFood)
+            {
+                MoveTowardsFood(currentAnt, foodSources);
                 PickUpFood(currentAnt, foodSources);
-            
+            }
+
             if (currentAnt.carryingFood && Vector2.Distance(currentAnt.position, colonyPosition) < 1f)
                 DepositFood(currentAnt);
         }
@@ -90,6 +93,22 @@ public class AntColony : MonoBehaviour
     private bool NearWorldEdge(Vector2 position, float margin = 2.5f)
     {
         return position.x < margin || position.x > worldWidth - margin || position.y < margin || position.y > worldHeight - margin;
+    }
+
+    private void MoveTowardsFood(Ant ant, FoodSource[] foodSources)
+    {
+        foreach (FoodSource food in foodSources)
+        {
+            if (Vector2.Distance(ant.position, food.transform.position) < antSettings.senseDistance)
+            {
+                Vector2 toFood = (food.transform.position - (Vector3)ant.position).normalized;
+                float angleToFood = Mathf.Atan2(toFood.y, toFood.x);
+                
+                ant.angle = Mathf.LerpAngle(ant.angle, angleToFood, antSettings.returnBias);
+
+                break;
+            }
+        }
     }
 
     private void PickUpFood(Ant ant, FoodSource[] foodSources)
