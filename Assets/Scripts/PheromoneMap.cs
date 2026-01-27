@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class PheromoneMap
 {
-    public const int Width = 1024;
-    public const int Height = 1024;
+    public const int Width = 256;
+    public const int Height = 256;
     
     public float[,] returningTrail = new float[Width, Height];
     public float[,] searchingTrail = new float[Width, Height];

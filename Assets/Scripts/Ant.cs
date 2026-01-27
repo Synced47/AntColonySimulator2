@@ -7,12 +7,13 @@ public class Ant
     public bool carryingFood;
     public AntColony colony;
     public float noiseOffset;
+    public float spawnTime;
 
-    public Ant(AntColony colony, Vector2 position)
+    public Ant(AntColony colony, Vector2 position, float angle)
     {
         this.colony = colony;
         this.position = position;
-        angle = Random.Range(0f, 360f) * Mathf.Deg2Rad;
+        this.angle = angle;
         carryingFood = false;
         noiseOffset = Random.value * 100f;
     }

@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AntSettings
   speed: 1
   turnSpeed: 0.1
-  turnAngleDegrees: 45
+  turnAngleDegrees: 20
   returnBias: 0.6
-  senseDistance: 2.5
-  depositAmount: 0.01
+  senseDistance: 2
+  depositAmount: 0.001
+  depositAmount_Food: 0.025
+  pheromoneDepositDelay: 2
   pheromoneDecayRate: 0.9
+  pheromoneThreshold: 0.01
   rivalAvoidThreshold: 0.05
-  randomMovement: 0.02
-  wanderFrequency: 0.5
+  randomMovement: 0.015
+  wanderFrequency: 0.1

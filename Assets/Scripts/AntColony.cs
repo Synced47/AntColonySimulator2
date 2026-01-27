@@ -10,8 +10,8 @@ public class AntColony : MonoBehaviour
     public Ant[] ants;
     public int colonyFood = 0;
 
-    private const float worldWidth = 200f;
-    private const float worldHeight = 200f;
+    private const float worldWidth = 50f;
+    private const float worldHeight = 50f;
     private Vector2 colonyPosition;
     private PheromoneMap pheromoneMap = new();
     private List<PheromoneMap> rivalPheromoneMaps = new();
@@ -36,7 +36,9 @@ public class AntColony : MonoBehaviour
             Ant currentAnt = ants[i];
             
             HandleMovement(currentAnt, foodSources, dt);
-            DepositPheromone(currentAnt);
+            
+            if (Time.time - currentAnt.spawnTime > antSettings.pheromoneDepositDelay)
+                DepositPheromone(currentAnt);
 
             if (!currentAnt.carryingFood)
             {
@@ -55,7 +57,7 @@ public class AntColony : MonoBehaviour
         if (ant.carryingFood)
             ant.angle = FollowReturnPheromone(ant, pheromoneMap.returningTrail);
         else 
-            ant.angle = SearchForFood(ant, foodSources);
+            ant.angle = SearchForFood(ant);
             
         float rivalPheromoneStrength = DetectRivalPheromones(ant);
         if (rivalPheromoneStrength > antSettings.rivalAvoidThreshold)
@@ -144,7 +146,7 @@ public class AntColony : MonoBehaviour
         int gridY = pheromoneMap.WorldToGridY(ant.position.y, worldHeight);
 
         if (ant.carryingFood)
-            pheromoneMap.returningTrail[gridX, gridY] += antSettings.depositAmount;
+            pheromoneMap.returningTrail[gridX, gridY] += antSettings.depositAmount_Food;
         else
             pheromoneMap.searchingTrail[gridX, gridY] += antSettings.depositAmount;
     }
@@ -155,8 +157,13 @@ public class AntColony : MonoBehaviour
 
         for (int i = 0; i < numAnts; i++)
         {
-            Vector2 position = colonyPosition + Random.insideUnitCircle * 2f;
-            ants[i] = new Ant(this, position);
+            Vector2 position = colonyPosition + Random.insideUnitCircle * 5f;
+            Vector2 awayFromColony = (position - colonyPosition).normalized;
+            float angle = Mathf.Atan2(awayFromColony.y, awayFromColony.x) + Random.Range(-antSettings.turnAngle, antSettings.turnAngle);
+            ants[i] = new Ant(this, position, angle)
+            {
+                spawnTime = Time.time
+            };
         }
     }
 
@@ -179,14 +186,15 @@ public class AntColony : MonoBehaviour
 
         int gridX = pheromoneMap.WorldToGridX(checkPosition.x, worldWidth);
         int gridY = pheromoneMap.WorldToGridY(checkPosition.y, worldHeight);
-        
+
         return map[gridX, gridY];
     }
 
-    private float SearchForFood(Ant ant, FoodSource[] foodSources)
+    private float SearchForFood(Ant ant)
     {
-        float foodSignal = CheckMap(ant, 0, pheromoneMap.searchingTrail);
-        if (foodSignal > 0.01f) return FollowReturnPheromone(ant, pheromoneMap.searchingTrail);
+        float pheromoneSignal = CheckMap(ant, 0, pheromoneMap.returningTrail);
+        // Debug.Log(pheromoneSignal); // Why does this line seemingly remove randomness?
+        if (pheromoneSignal > 0.01f) return FollowReturnPheromone(ant, pheromoneMap.returningTrail);
         return ant.angle + Random.Range(-antSettings.randomMovement, antSettings.randomMovement);
     }
 
@@ -217,7 +225,7 @@ public class AntColony : MonoBehaviour
     }
     
     
-    void OnDrawGizmosSelected()
+    void _OnDrawGizmosSelected()
     {
         if (pheromoneMap == null)
         {
@@ -225,7 +233,7 @@ public class AntColony : MonoBehaviour
             return;
         }
 
-        Debug.Log("Drawing Gizmos");
+        // Debug.Log("Drawing Gizmos");
         int sampleStep = 8;
         float cellWidth = worldWidth / (float)PheromoneMap.Width;
         float cellHeight = worldHeight / (float)PheromoneMap.Height;

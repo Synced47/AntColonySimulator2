@@ -14,12 +14,14 @@ public class AntRenderer : MonoBehaviour
     {
         CreateQuadMesh();
         
-        if (colony == null)
+        if (colony == null || antMaterial == null)
         {
-            Debug.LogWarning("AntRenderer: colony is null");
+            Debug.LogWarning("AntRenderer: references null");
             enabled = false;
             return;
         }
+        
+        antMaterial.enableInstancing = true;
         
         matrices = new Matrix4x4[colony.ants.Length];
     }
@@ -30,7 +32,8 @@ public class AntRenderer : MonoBehaviour
         {
             Ant ant = colony.ants[i];
             
-            Vector3 scale = Vector3.one * scaleValue;
+            float flip = Mathf.Cos(ant.angle) < 0f ? -1f : 1f;
+            Vector3 scale = new(scaleValue, scaleValue * flip, 1f);
             
             Quaternion rotation = Quaternion.Euler(0, 0, ant.angle * Mathf.Rad2Deg);
             
@@ -46,20 +49,20 @@ public class AntRenderer : MonoBehaviour
 
         Vector3[] vertices =
         {
-            new Vector3(-0.5f, -0.5f, 0.0f),
-            new Vector3(0.5f, -0.5f, 0.0f),
-            new Vector3(-0.5f, 0.5f, 0.0f),
-            new Vector3(0.5f, 0.5f, 0.0f),
+            new (-0.5f, -0.5f, 0.0f),
+            new (0.5f, -0.5f, 0.0f),
+            new (-0.5f, 0.5f, 0.0f),
+            new (0.5f, 0.5f, 0.0f),
         };
 
         int[] triangles = { 0, 2, 1, 2, 3, 1 };
 
         Vector2[] uv =
         {
-            new Vector2(0, 0),
-            new Vector2(1, 0),
-            new Vector2(0, 1),
-            new Vector2(1, 1),
+            new (0, 0),
+            new (1, 0),
+            new (0, 1),
+            new (1, 1),
         };
         
         quadMesh.vertices = vertices;
