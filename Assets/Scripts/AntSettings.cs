@@ -10,6 +10,8 @@ public class AntSettings : ScriptableObject
     public float returnBias = 0.6f;
     
     public float senseDistance = 2f;
+    public float obstacleAvoidanceDistance = 0.75f;
+    public LayerMask obstacleLayerMask;
     
     public float depositAmount = 0.001f;
     public float depositAmount_Food = 0.005f;

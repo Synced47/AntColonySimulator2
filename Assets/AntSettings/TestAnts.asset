@@ -17,6 +17,10 @@ MonoBehaviour:
   turnAngleDegrees: 20
   returnBias: 0.6
   senseDistance: 2
+  obstacleAvoidanceDistance: 1.5
+  obstacleLayerMask:
+    serializedVersion: 2
+    m_Bits: 32768
   depositAmount: 0.001
   depositAmount_Food: 0.025
   pheromoneDepositDelay: 2

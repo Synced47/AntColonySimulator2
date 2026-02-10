@@ -54,6 +54,17 @@ public class AntColony : MonoBehaviour
 
     private void HandleMovement(Ant ant, FoodSource[] foodSources, float dt)
     {
+        if (ObstacleAhead(ant))
+        {
+            Vector2 toColony =  (colonyPosition - ant.position).normalized;
+            float angleToColony = Mathf.Atan2(toColony.y, toColony.x);
+            ant.angle = Mathf.LerpAngle(ant.angle, angleToColony, antSettings.returnBias);
+            
+            ant.position += new Vector2(Mathf.Cos(ant.angle), Mathf.Sin(ant.angle)) * (antSettings.speed * dt);
+            
+            return;
+        }
+        
         if (ant.carryingFood)
             ant.angle = FollowReturnPheromone(ant, pheromoneMap.returningTrail);
         else 
@@ -78,14 +89,15 @@ public class AntColony : MonoBehaviour
         float wander = (noise - 0.5f) * 2f * wanderStrength; // -0.5 => *2 to get negative values of the same magnitude
         ant.angle += wander;
 
-        if (ant.carryingFood)
-        {
-            Vector2 toColony =  (colonyPosition - ant.position).normalized;
-            float angleToColony = Mathf.Atan2(toColony.y, toColony.x);
+        //if (ant.carryingFood)
+        //{
+            //Vector2 toColony =  (colonyPosition - ant.position).normalized;
+            //float angleToColony = Mathf.Atan2(toColony.y, toColony.x);
 
-            float newAngle = Mathf.LerpAngle(ant.angle, angleToColony, antSettings.returnBias);
-            ant.angle = newAngle;
-        }
+            //float newAngle = Mathf.LerpAngle(ant.angle, angleToColony, antSettings.returnBias);
+            //ant.angle = newAngle;
+            //ant.angle = 360 - ant.angle;
+        //}
         
         ant.position += new Vector2(Mathf.Cos(ant.angle), Mathf.Sin(ant.angle)) * (antSettings.speed * dt);
         ant.position.x = Mathf.Clamp(ant.position.x, 0, worldWidth);
@@ -123,10 +135,12 @@ public class AntColony : MonoBehaviour
                 {
                     ant.carryingFood = true;
                     
-                    Vector2 toColony = (colonyPosition - ant.position).normalized;
-                    float angleToColony = Mathf.Atan2(toColony.y, toColony.x);
+                    //Vector2 toColony = (colonyPosition - ant.position).normalized;
+                    //float angleToColony = Mathf.Atan2(toColony.y, toColony.x);
                     
-                    ant.angle = Mathf.LerpAngle(ant.angle, angleToColony, antSettings.returnBias);
+                    //ant.angle = Mathf.LerpAngle(ant.angle, ant.angle+180, antSettings.returnBias);
+                    
+                    ant.angle = 360 - ant.angle;
                     
                     break;
                 }
@@ -223,7 +237,16 @@ public class AntColony : MonoBehaviour
             }
         }
     }
-    
+
+    private bool ObstacleAhead(Ant ant)
+    {
+        Vector2 position = ant.position;
+        Vector2 direction = new Vector2(Mathf.Sin(ant.angle), Mathf.Cos(ant.angle));
+        
+        RaycastHit2D hit = Physics2D.Raycast(position, direction, antSettings.obstacleAvoidanceDistance, antSettings.obstacleLayerMask);
+        
+        return hit.collider != null;
+    }
     
     void _OnDrawGizmosSelected()
     {
