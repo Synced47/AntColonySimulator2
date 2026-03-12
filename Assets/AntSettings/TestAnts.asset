@@ -16,7 +16,7 @@ MonoBehaviour:
   turnSpeed: 0.1
   turnAngleDegrees: 20
   returnBias: 0.6
-  senseDistance: 2
+  senseDistance: 1.62
   obstacleAvoidanceDistance: 1.5
   obstacleLayerMask:
     serializedVersion: 2

@@ -56,12 +56,7 @@ public class AntColony : MonoBehaviour
     {
         if (ObstacleAhead(ant))
         {
-            Vector2 toColony =  (colonyPosition - ant.position).normalized;
-            float angleToColony = Mathf.Atan2(toColony.y, toColony.x);
-            ant.angle = Mathf.LerpAngle(ant.angle, angleToColony, antSettings.returnBias);
-            
             ant.position += new Vector2(Mathf.Cos(ant.angle), Mathf.Sin(ant.angle)) * (antSettings.speed * dt);
-            
             return;
         }
         
@@ -240,12 +235,28 @@ public class AntColony : MonoBehaviour
 
     private bool ObstacleAhead(Ant ant)
     {
-        Vector2 position = ant.position;
-        Vector2 direction = new Vector2(Mathf.Sin(ant.angle), Mathf.Cos(ant.angle));
+        Vector2 forward = new Vector2(Mathf.Cos(ant.angle), Mathf.Sin(ant.angle));
+        Vector2 left = new Vector2(Mathf.Cos(ant.angle + antSettings.turnAngle), Mathf.Sin(ant.angle + antSettings.turnAngle));
+        Vector2 right = new Vector2(Mathf.Cos(ant.angle - antSettings.turnAngle), Mathf.Sin(ant.angle - antSettings.turnAngle));
+
+        bool hitForward = Physics2D.Raycast(ant.position, forward, antSettings.obstacleAvoidanceDistance, antSettings.obstacleLayerMask).collider != null;
+        bool hitLeft = Physics2D.Raycast(ant.position, left, antSettings.obstacleAvoidanceDistance, antSettings.obstacleLayerMask).collider != null;
+        bool hitRight = Physics2D.Raycast(ant.position, right, antSettings.obstacleAvoidanceDistance, antSettings.obstacleLayerMask).collider != null;
         
-        RaycastHit2D hit = Physics2D.Raycast(position, direction, antSettings.obstacleAvoidanceDistance, antSettings.obstacleLayerMask);
+        bool insideWall = Physics2D.Raycast(ant.position, forward, 0.01f, antSettings.obstacleLayerMask).collider != null;
+
+        if (insideWall)
+        {
+            ant.position = colonyPosition;
+            ant.angle = Random.Range(0f, Mathf.PI * 2f);
+            return false;
+        }
         
-        return hit.collider != null;
+        if (hitLeft && !hitRight) ant.angle -= antSettings.turnSpeed;
+        if (hitRight && !hitLeft) ant.angle += antSettings.turnSpeed;
+        if (hitForward) ant.angle += (hitLeft ? -1 : 1) * antSettings.turnSpeed;
+
+        return hitForward || hitLeft || hitRight;
     }
     
     void _OnDrawGizmosSelected()
@@ -278,6 +289,30 @@ public class AntColony : MonoBehaviour
                 
                 Gizmos.DrawCube(new Vector3(worldX, worldY, 0.0f), new Vector3(cellWidth * sampleStep, cellHeight * sampleStep, 0.1f));
             }
+        }
+    }
+    
+    void _OnDrawGizmos()
+    {
+        if (ants == null) return;
+    
+        for (int i = 0; i < Mathf.Min(10, ants.Length); i++)
+        {
+            Ant ant = ants[i];
+            Vector3 start = new Vector3(ant.position.x, ant.position.y, 0f);
+
+            Vector2 forward = new Vector2(Mathf.Cos(ant.angle), Mathf.Sin(ant.angle));
+            Vector2 left = new Vector2(Mathf.Cos(ant.angle + antSettings.turnAngle), Mathf.Sin(ant.angle + antSettings.turnAngle));
+            Vector2 right = new Vector2(Mathf.Cos(ant.angle - antSettings.turnAngle), Mathf.Sin(ant.angle - antSettings.turnAngle));
+
+            Gizmos.color = Color.red;
+            Gizmos.DrawLine(start, start + (Vector3)forward * antSettings.obstacleAvoidanceDistance);
+
+            Gizmos.color = Color.green;
+            Gizmos.DrawLine(start, start + (Vector3)left * antSettings.obstacleAvoidanceDistance);
+
+            Gizmos.color = Color.blue;
+            Gizmos.DrawLine(start, start + (Vector3)right * antSettings.obstacleAvoidanceDistance);
         }
     }
 }
