@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d155cae962d505a4e9d2e6537b7ca1ba, type: 3}
-  m_Name: TestAnts
+  m_Name: AntSettings
   m_EditorClassIdentifier: Assembly-CSharp::AntSettings
   speed: 1
   turnSpeed: 0.1

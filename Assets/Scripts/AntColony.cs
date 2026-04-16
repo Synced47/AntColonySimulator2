@@ -259,7 +259,7 @@ public class AntColony : MonoBehaviour
         return hitForward || hitLeft || hitRight;
     }
     
-    void _OnDrawGizmosSelected()
+    void OnDrawGizmosSelected()
     {
         if (pheromoneMap == null)
         {
